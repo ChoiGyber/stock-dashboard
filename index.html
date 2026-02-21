@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="300">
+<title>📡 Signal Dashboard</title>
+<script src="https://cdn.tailwindcss.com">
+// ─── Python 주입 데이터 ───
+const GENERATED_AT = "2026-02-22 02:09:49";
+const REAL_SIGNALS = [];
+const REAL_WEIGHTS = {};
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CSS 변수 & 디자인 토큰 (DESIGN_SKILL.md 기반)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+:root {
+  --bg-base:      #050810;
+  --bg-surface:   #0d1117;
+  --bg-elevated:  #161b27;
+  --bg-hover:     #1e2433;
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-default: rgba(255,255,255,0.10);
+  --grade-s:  #ff3b30;
+  --grade-a:  #30d158;
+  --grade-b:  #ffd60a;
+  --grade-c:  #636366;
+  --grade-d:  #3a3a3c;
+  --glow-s:   0 0 30px rgba(255,59,48,0.4);
+  --glow-a:   0 0 30px rgba(48,209,88,0.35);
+  --glow-b:   0 0 20px rgba(255,214,10,0.25);
+  --text-primary:   #f0f6fc;
+  --text-secondary: #8b949e;
+  --text-muted:     #484f58;
+  --accent:   #2f81f7;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Geist', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   배경 노이즈 & 그리드 (Magic UI 스타일)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(47,129,247,0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(48,209,88,0.06), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 100%);
+}
+
+.z1 { position: relative; z-index: 1; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   레이아웃 쉘 (Shadcnblocks Dashboard Shell)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.shell { display: flex; min-height: 100vh; }
+
+/* 사이드바 */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebar-logo {
+  padding: 0 20px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+}
+.sidebar-logo .logo-mark {
+  font-family: 'Geist Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2f81f7, #30d158);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+.sidebar-logo .logo-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-radius: 0;
+  text-decoration: none;
+}
+.nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.nav-item.active {
+  background: rgba(47,129,247,0.12);
+  color: #60a5fa;
+  border-right: 2px solid #2f81f7;
+}
+.nav-icon { font-size: 15px; width: 20px; text-align: center; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-subtle);
+}
+.ai-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.ai-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--grade-a);
+  box-shadow: 0 0 8px var(--grade-a);
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   메인 컨텐츠
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.main { flex: 1; overflow-y: auto; }
+
+/* 탑바 */
+.topbar {
+  height: 56px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(13,17,23,0.8);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-left { display: flex; align-items: center; gap: 20px; }
+.topbar-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.market-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(48,209,88,0.1);
+  border: 1px solid rgba(48,209,88,0.2);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--grade-a);
+  font-family: 'Geist Mono', monospace;
+}
+
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.clock {
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+.refresh-btn {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Geist', sans-serif;
+}
+.refresh-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong, rgba(255,255,255,0.2));
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   통계 카드 (Origin UI StatCard 스타일)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.content { padding: 28px; display: flex; flex-direction: column; gap: 24px; }
+
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+.stat-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s;
+  cursor: default;
+}
+.stat-card:hover {
+  border-color: var(--border-default);
+  transform: translateY(-1px);
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--card-accent, rgba(255,255,255,0.1)), transparent);
+}
+.stat-card.s { --card-accent: rgba(255,59,48,0.5); border-color: rgba(255,59,48,0.15); }
+.stat-card.a { --card-accent: rgba(48,209,88,0.5); border-color: rgba(48,209,88,0.15); }
+.stat-card.b { --card-accent: rgba(255,214,10,0.4); border-color: rgba(255,214,10,0.12); }
+
+.stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.stat-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; letter-spacing: 0.3px; }
+.stat-icon { font-size: 16px; }
+
+.stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  font-family: 'Geist Mono', monospace;
+  line-height: 1;
+  margin-bottom: 8px;
+  letter-spacing: -1px;
+}
+.stat-value.s { color: var(--grade-s); text-shadow: var(--glow-s); }
+.stat-value.a { color: var(--grade-a); text-shadow: var(--glow-a); }
+.stat-value.b { color: var(--grade-b); text-shadow: var(--glow-b); }
+.stat-value.total { color: var(--text-primary); }
+
+.stat-trend {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   시그널 테이블 패널 (shadcn/ui DataTable 스타일)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.panel-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-actions { display: flex; gap: 8px; }
+
+/* 필터 탭 (shadcn/ui Tabs) */
+.tab-group { display: flex; gap: 2px; background: var(--bg-elevated); border-radius: 8px; padding: 3px; }
+.tab {
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.15s;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  font-family: 'Geist', sans-serif;
+}
+.tab:hover { color: var(--text-secondary); }
+.tab.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+
+/* 테이블 */
+.signal-table { width: 100%; border-collapse: collapse; }
+.signal-table thead tr {
+  border-bottom: 1px solid var(--border-subtle);
+}
+.signal-table th {
+  padding: 11px 20px;
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.signal-table tbody tr {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.12s;
+  cursor: pointer;
+}
+.signal-table tbody tr:hover { background: var(--bg-hover); }
+.signal-table tbody tr:last-child { border-bottom: none; }
+.signal-table td { padding: 14px 20px; font-size: 13.5px; vertical-align: middle; }
+
+/* 등급 배지 (shadcn/ui Badge) */
+.grade-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Geist Mono', monospace;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.grade-badge.S { background: rgba(255,59,48,0.15); color: #ff3b30; border: 1px solid rgba(255,59,48,0.3); box-shadow: var(--glow-s); animation: s-pulse 3s infinite; }
+.grade-badge.A { background: rgba(48,209,88,0.12); color: #30d158; border: 1px solid rgba(48,209,88,0.25); }
+.grade-badge.B { background: rgba(255,214,10,0.10); color: #ffd60a; border: 1px solid rgba(255,214,10,0.2); }
+.grade-badge.C { background: rgba(99,99,102,0.15); color: #636366; border: 1px solid rgba(99,99,102,0.2); }
+@keyframes s-pulse {
+  0%,100% { box-shadow: 0 0 20px rgba(255,59,48,0.35); }
+  50% { box-shadow: 0 0 35px rgba(255,59,48,0.6); }
+}
+
+/* 종목명 */
+.stock-name { font-weight: 600; font-size: 14px; color: var(--text-primary); }
+.stock-code { font-size: 11px; color: var(--text-muted); font-family: 'Geist Mono', monospace; margin-top: 1px; }
+
+/* 점수 바 (15칸 세그먼트) */
+.score-wrap { display: flex; align-items: center; gap: 10px; }
+.score-num {
+  font-family: 'Geist Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  min-width: 32px;
+}
+.score-segments { display: flex; gap: 2px; }
+.seg {
+  width: 5px;
+  height: 14px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.06);
+  transition: background 0.3s;
+}
+.seg.filled.S { background: var(--grade-s); }
+.seg.filled.A { background: var(--grade-a); }
+.seg.filled.B { background: var(--grade-b); }
+
+/* 팩터 점수 미니 */
+.factor-mini { display: flex; gap: 4px; flex-wrap: wrap; }
+.factor-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  font-family: 'Geist Mono', monospace;
+  white-space: nowrap;
+}
+.factor-pill span { color: var(--text-muted); }
+
+/* 액션 배지 */
+.action-badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.action-badge.buy   { background: rgba(48,209,88,0.1); color: #30d158; }
+.action-badge.watch { background: rgba(255,214,10,0.08); color: #ffd60a; }
+.action-badge.hold  { background: rgba(99,99,102,0.1); color: var(--text-muted); }
+.action-badge.avoid { background: rgba(255,59,48,0.08); color: rgba(255,59,48,0.5); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   하단 2열: 실시간 피드 + 가중치 패널
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.bottom-grid { display: grid; grid-template-columns: 1fr 340px; gap: 16px; }
+
+/* 실시간 피드 (Magic UI AnimatedList 스타일) */
+.feed-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  animation: slide-in 0.35s ease-out;
+  transition: background 0.12s;
+}
+.feed-item:hover { background: var(--bg-hover); }
+.feed-item:last-child { border-bottom: none; }
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.feed-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.feed-dot.S { background: var(--grade-s); box-shadow: 0 0 8px var(--grade-s); }
+.feed-dot.A { background: var(--grade-a); box-shadow: 0 0 8px var(--grade-a); }
+.feed-dot.B { background: var(--grade-b); }
+.feed-dot.C { background: var(--grade-c); }
+.feed-content { flex: 1; }
+.feed-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 3px; }
+.feed-meta  { font-size: 11.5px; color: var(--text-muted); font-family: 'Geist Mono', monospace; }
+
+/* 가중치 패널 (Origin UI 스타일) */
+.weight-row { padding: 12px 20px; border-bottom: 1px solid var(--border-subtle); }
+.weight-row:last-child { border-bottom: none; }
+.weight-label { display: flex; justify-content: space-between; margin-bottom: 7px; }
+.weight-name  { font-size: 12.5px; color: var(--text-secondary); }
+.weight-val   { font-size: 12px; font-family: 'Geist Mono', monospace; color: var(--text-muted); }
+.weight-bar-bg {
+  height: 4px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.weight-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.8s ease-out;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Magic UI: Border Beam (카드 상단 라인 애니메이션)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.border-beam {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(47,129,247,0.8) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: beam 3s linear infinite;
+}
+@keyframes beam {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 300% 0; }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Magic UI: NumberTicker (숫자 카운팅)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ticker { display: inline-block; transition: all 0.3s; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   로딩 스켈레톤 (shadcn/ui Skeleton)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-hover) 50%, var(--bg-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 빈 상태 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  gap: 12px;
+}
+.empty-icon { font-size: 40px; opacity: 0.4; }
+.empty-text { font-size: 14px; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   반응형
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (max-width: 1100px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .bottom-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .stat-value { font-size: 28px; }
+}
+</style>
+</head>
+
+<body>
+<div class="shell">
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 사이드바 ━━━━ -->
+  <aside class="sidebar z1">
+    <div class="sidebar-logo">
+      <div class="logo-mark">⬡ SignalOS</div>
+      <div class="logo-sub">Stock Intelligence</div>
+    </div>
+
+    <nav>
+      <a class="nav-item active" onclick="switchTab('dashboard')">
+        <span class="nav-icon">⬡</span> 대시보드
+      </a>
+      <a class="nav-item" onclick="switchTab('history')">
+        <span class="nav-icon">◷</span> 히스토리
+      </a>
+      <a class="nav-item" onclick="switchTab('screener')">
+        <span class="nav-icon">◈</span> 스크리너
+      </a>
+      <a class="nav-item" onclick="switchTab('learning')">
+        <span class="nav-icon">◉</span> 자가학습
+      </a>
+    </nav>
+
+    <div style="margin: 0 12px; border-top: 1px solid var(--border-subtle); margin-top: 20px; padding-top: 16px;">
+      <div style="font-size: 10.5px; color: var(--text-muted); padding: 0 8px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase;">팩터 가중치</div>
+      <div id="mini-weights"></div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="ai-status">
+        <div class="ai-dot"></div>
+        <span id="ai-provider-name">Gemini Flash</span>
+      </div>
+      <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 6px;" id="last-update-time">업데이트 중...</div>
+    </div>
+  </aside>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 메인 영역 ━━━━ -->
+  <main class="main z1">
+
+    <!-- 탑바 -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">시그널 대시보드</span>
+        <div class="market-badge" id="market-status">
+          <span class="feed-dot A" style="margin-top:0; width:6px; height:6px;"></span>
+          KOSPI 장중
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="clock" id="clock">--:--:--</span>
+        <button class="refresh-btn" onclick="refreshAll()">↻ 새로고침</button>
+      </div>
+    </header>
+
+    <!-- 컨텐츠 -->
+    <div class="content">
+
+      <!-- 통계 카드 4개 -->
+      <div class="stat-grid" id="stat-cards">
+        <div class="stat-card s">
+          <div class="border-beam"></div>
+          <div class="stat-header">
+            <span class="stat-label">🔥 S등급 강력매수</span>
+          </div>
+          <div class="stat-value s ticker" id="cnt-s">0</div>
+          <div class="stat-trend">즉시 진입 검토 대상</div>
+        </div>
+        <div class="stat-card a">
+          <div class="border-beam" style="animation-delay: -1s;"></div>
+          <div class="stat-header">
+            <span class="stat-label">✅ A등급 매수신호</span>
+          </div>
+          <div class="stat-value a ticker" id="cnt-a">0</div>
+          <div class="stat-trend">진입 신호 발생</div>
+        </div>
+        <div class="stat-card b">
+          <div class="border-beam" style="animation-delay: -2s;"></div>
+          <div class="stat-header">
+            <span class="stat-label">👀 B등급 관심종목</span>
+          </div>
+          <div class="stat-value b ticker" id="cnt-b">0</div>
+          <div class="stat-trend">감시리스트 추가</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">전체 스크리닝</span>
+          </div>
+          <div class="stat-value total ticker" id="cnt-total">0</div>
+          <div class="stat-trend">6팩터 15점 분석 완료</div>
+        </div>
+      </div>
+
+      <!-- 시그널 테이블 -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">
+            <span style="color:var(--accent)">◈</span>
+            실시간 시그널
+          </span>
+          <div class="panel-actions">
+            <div class="tab-group">
+              <button class="tab active" onclick="filterGrade('all', this)">전체</button>
+              <button class="tab" onclick="filterGrade('SA', this)">S/A</button>
+              <button class="tab" onclick="filterGrade('B', this)">B</button>
+            </div>
+          </div>
+        </div>
+
+        <table class="signal-table">
+          <thead>
+            <tr>
+              <th>등급</th>
+              <th>종목</th>
+              <th>점수</th>
+              <th>팩터 분석</th>
+              <th>액션</th>
+              <th>분석AI</th>
+            </tr>
+          </thead>
+          <tbody id="signal-tbody">
+            <tr><td colspan="6">
+              <div class="empty-state">
+                <div class="skeleton" style="width:200px;height:16px;"></div>
+                <div class="skeleton" style="width:140px;height:12px;margin-top:8px;"></div>
+              </div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 하단: 피드 + 가중치 -->
+      <div class="bottom-grid">
+
+        <!-- 실시간 알림 피드 -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span style="color:var(--accent)">◷</span> 시그널 피드</span>
+            <span style="font-size:11px; color:var(--text-muted);">최근 20건</span>
+          </div>
+          <div id="signal-feed" style="max-height: 320px; overflow-y: auto;">
+            <div class="empty-state"><div class="empty-icon">📡</div><div class="empty-text">시그널 대기 중...</div></div>
+          </div>
+        </div>
+
+        <!-- 자가학습 가중치 -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span style="color:var(--accent)">◉</span> 스코어링 가중치</span>
+            <span style="font-size:11px; color:var(--text-muted);" id="weight-version">v1</span>
+          </div>
+          <div id="weight-panel"></div>
+        </div>
+
+      </div><!-- /bottom-grid -->
+
+    </div><!-- /content -->
+  </main><!-- /main -->
+</div><!-- /shell -->
+
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     JavaScript: 데이터 + 애니메이션
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<script>
+/* ─── 샘플 데이터 (실제 환경에선 Python에서 JSON 주입) ─── */
+const SAMPLE_SIGNALS = [
+  {
+    code:"000660", name:"SK하이닉스", grade:"S", total_score:13,
+    action:"즉시 진입 검토", reason:"외국인/기관 동반매수+MACD 골든크로스",
+    provider:"Gemini Flash",
+    breakdown:{뉴스:3,기술적:3,수급:3,거래량:2,펀더멘털:1,AI판단:1}
+  },
+  {
+    code:"005930", name:"삼성전자", grade:"A", total_score:10,
+    action:"진입 신호", reason:"기관 순매수+RSI 적정구간",
+    provider:"GPT-4o-mini",
+    breakdown:{뉴스:2,기술적:2,수급:3,거래량:1,펀더멘털:1,AI판단:1}
+  },
+  {
+    code:"373220", name:"LG에너지솔루션", grade:"A", total_score:11,
+    action:"진입 신호", reason:"배터리 수주 공시+외국인 매수",
+    provider:"Gemini Flash",
+    breakdown:{뉴스:3,기술적:2,수급:2,거래량:2,펀더멘털:1,AI판단:1}
+  },
+  {
+    code:"035420", name:"NAVER", grade:"B", total_score:8,
+    action:"감시 리스트", reason:"AI 서비스 확장 기대감",
+    provider:"Claude Haiku",
+    breakdown:{뉴스:2,기술적:1,수급:2,거래량:1,펀더멘털:1,AI판단:1}
+  },
+  {
+    code:"051910", name:"LG화학", grade:"B", total_score:7,
+    action:"감시 리스트", reason:"양극재 수요 회복 신호",
+    provider:"Gemini Flash",
+    breakdown:{뉴스:2,기술적:2,수급:1,거래량:1,펀더멘털:1,AI판단:0}
+  },
+  {
+    code:"068270", name:"셀트리온", grade:"C", total_score:5,
+    action:"관망", reason:"바이오시밀러 승인 지연",
+    provider:"keyword",
+    breakdown:{뉴스:1,기술적:1,수급:1,거래량:1,펀더멘털:1,AI판단:0}
+  },
+];
+
+const SAMPLE_WEIGHTS = {
+  뉴스:1.15, 기술적:0.95, 수급:1.20, 거래량:0.90, 펀더멘털:1.05, AI판단:1.10
+};
+
+const FACTOR_COLORS = {
+  뉴스:"#2f81f7", 기술적:"#a78bfa", 수급:"#30d158",
+  거래량:"#ffd60a", 펀더멘털:"#fb923c", AI판단:"#38bdf8"
+};
+
+let currentFilter = 'all';
+let signals = [];
+
+/* ─── 초기화 ─── */
+window.addEventListener('DOMContentLoaded', () => {
+  startClock();
+  loadData();
+  setTimeout(() => animateIn(), 100);
+});
+
+function animateIn() {
+  if (typeof gsap === 'undefined') return;
+  gsap.from('.stat-card', {
+    y: 24, opacity: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out'
+  });
+  gsap.from('.panel', {
+    y: 20, opacity: 0, duration: 0.5, delay: 0.3, stagger: 0.1, ease: 'power2.out'
+  });
+}
+
+/* ─── 데이터 로드 ─── */
+function loadData() {
+  signals = (typeof REAL_SIGNALS !== 'undefined' && REAL_SIGNALS.length)
+            ? REAL_SIGNALS : SAMPLE_SIGNALS;
+  const w = (typeof REAL_WEIGHTS !== 'undefined' && Object.keys(REAL_WEIGHTS).length)
+            ? REAL_WEIGHTS : SAMPLE_WEIGHTS;
+  renderAll(signals);
+  renderWeights(w);
+  renderMiniWeights(w);
+}
+
+function refreshAll() {
+  const btn = document.querySelector('.refresh-btn');
+  btn.textContent = '↻ 로딩중...';
+  btn.disabled = true;
+  setTimeout(() => {
+    loadData();
+    btn.textContent = '↻ 새로고침';
+    btn.disabled = false;
+  }, 800);
+}
+
+/* ─── 전체 렌더 ─── */
+function renderAll(data) {
+  renderStatCards(data);
+  renderTable(data);
+  renderFeed(data);
+  updateLastTime();
+}
+
+/* ─── 통계 카드 ─── */
+function renderStatCards(data) {
+  const s = data.filter(d => d.grade === 'S').length;
+  const a = data.filter(d => d.grade === 'A').length;
+  const b = data.filter(d => d.grade === 'B').length;
+  animateTicker('cnt-s',     s);
+  animateTicker('cnt-a',     a);
+  animateTicker('cnt-b',     b);
+  animateTicker('cnt-total', data.length);
+}
+
+function animateTicker(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let current = parseInt(el.textContent) || 0;
+  const step = Math.ceil(Math.abs(target - current) / 15);
+  const timer = setInterval(() => {
+    if (current < target) { current = Math.min(current + step, target); }
+    else if (current > target) { current = Math.max(current - step, target); }
+    el.textContent = current;
+    if (current === target) clearInterval(timer);
+  }, 40);
+}
+
+/* ─── 시그널 테이블 ─── */
+function filterGrade(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable(signals);
+}
+
+function renderTable(data) {
+  let filtered = data;
+  if (currentFilter === 'SA') filtered = data.filter(d => ['S','A'].includes(d.grade));
+  if (currentFilter === 'B')  filtered = data.filter(d => d.grade === 'B');
+  filtered = [...filtered].sort((a,b) => b.total_score - a.total_score);
+
+  const tbody = document.getElementById('signal-tbody');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+      <div class="empty-icon">📡</div>
+      <div class="empty-text">해당 등급 시그널 없음</div>
+    </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((sig, idx) => `
+    <tr style="animation: slide-in 0.3s ease-out ${idx*0.05}s both;" onclick="showDetail('${sig.code}')">
+      <td><span class="grade-badge ${sig.grade}">${gradeEmoji(sig.grade)} ${sig.grade}</span></td>
+      <td>
+        <div class="stock-name">${sig.name}</div>
+        <div class="stock-code">${sig.code}</div>
+      </td>
+      <td>
+        <div class="score-wrap">
+          <span class="score-num" style="color:${gradeColor(sig.grade)}">${sig.total_score}</span>
+          <div class="score-segments">
+            ${Array.from({length:15}).map((_,i) =>
+              `<div class="seg${i < sig.total_score ? ' filled '+sig.grade : ''}"></div>`
+            ).join('')}
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="factor-mini">
+          ${Object.entries(sig.breakdown).map(([k,v]) => v > 0 ? `
+            <span class="factor-pill" style="border-color:${FACTOR_COLORS[k]}22;color:${FACTOR_COLORS[k]}">
+              ${k}<span>+${v}</span>
+            </span>` : ''
+          ).join('')}
+        </div>
+      </td>
+      <td><span class="action-badge ${actionClass(sig.grade)}">${sig.action}</span></td>
+      <td><span style="font-size:11.5px;color:var(--text-muted)">${sig.provider || '-'}</span></td>
+    </tr>
+  `).join('');
+}
+
+/* ─── 피드 ─── */
+function renderFeed(data) {
+  const feed = document.getElementById('signal-feed');
+  const sorted = [...data].sort((a,b) => b.total_score - a.total_score);
+  if (!sorted.length) return;
+
+  feed.innerHTML = sorted.map((sig, i) => `
+    <div class="feed-item" style="animation-delay:${i*0.07}s">
+      <div class="feed-dot ${sig.grade}"></div>
+      <div class="feed-content">
+        <div class="feed-title">[${sig.grade}] ${sig.name} · ${sig.total_score}/15점</div>
+        <div class="feed-meta">${sig.reason || ''} · ${sig.provider || ''}</div>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;margin-top:2px">방금</div>
+    </div>
+  `).join('');
+}
+
+/* ─── 가중치 패널 ─── */
+function renderWeights(weights) {
+  const panel = document.getElementById('weight-panel');
+  panel.innerHTML = Object.entries(weights).map(([name, val]) => {
+    const pct   = Math.round((val / 1.8) * 100);
+    const color = FACTOR_COLORS[name] || '#8b949e';
+    const arrow = val > 1.05 ? '↑' : val < 0.95 ? '↓' : '→';
+    const arrowColor = val > 1.05 ? '#30d158' : val < 0.95 ? '#ff3b30' : '#636366';
+    return `
+      <div class="weight-row">
+        <div class="weight-label">
+          <span class="weight-name">${name}</span>
+          <span class="weight-val" style="color:${arrowColor}">${arrow} ${val.toFixed(2)}x</span>
+        </div>
+        <div class="weight-bar-bg">
+          <div class="weight-bar-fill" style="width:${pct}%;background:${color}"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ─── 사이드바 미니 가중치 ─── */
+function renderMiniWeights(weights) {
+  const el = document.getElementById('mini-weights');
+  el.innerHTML = Object.entries(weights).map(([name, val]) => {
+    const color = FACTOR_COLORS[name] || '#8b949e';
+    const pct = Math.round((val / 1.8) * 100);
+    return `<div style="padding:4px 8px;display:flex;align-items:center;gap:8px;">
+      <div style="font-size:10.5px;color:var(--text-muted);width:52px">${name}</div>
+      <div style="flex:1;height:3px;background:rgba(255,255,255,0.05);border-radius:2px">
+        <div style="height:100%;width:${pct}%;background:${color};border-radius:2px;transition:width 0.8s"></div>
+      </div>
+      <div style="font-size:10px;font-family:'Geist Mono',monospace;color:var(--text-muted);width:28px;text-align:right">${val.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ─── 시계 ─── */
+function startClock() {
+  const tick = () => {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+
+    // 장 시간 체크 (09:00~15:30)
+    const total = now.getHours() * 60 + now.getMinutes();
+    const ms = document.getElementById('market-status');
+    if (total >= 540 && total <= 930) {
+      ms.innerHTML = `<span class="feed-dot A" style="margin-top:0;width:6px;height:6px;"></span> KOSPI 장중`;
+      ms.style.background = 'rgba(48,209,88,0.1)';
+      ms.style.color = 'var(--grade-a)';
+    } else {
+      ms.innerHTML = `<span class="feed-dot C" style="margin-top:0;width:6px;height:6px;"></span> 장 종료`;
+      ms.style.background = 'rgba(99,99,102,0.1)';
+      ms.style.color = 'var(--grade-c)';
+    }
+  };
+  tick();
+  setInterval(tick, 1000);
+}
+
+function updateLastTime() {
+  const el = document.getElementById('last-update-time');
+  const now = new Date();
+  el.textContent = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')} 업데이트`;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+
+function showDetail(code) {
+  const sig = signals.find(s => s.code === code);
+  if (!sig) return;
+  // 추후: 종목 상세 모달
+  console.log('선택 종목:', sig);
+}
+
+/* ─── 헬퍼 ─── */
+function gradeEmoji(g) { return {S:'🔥',A:'✅',B:'👀',C:'⏸️',D:'❌'}[g]||''; }
+function gradeColor(g)  { return {S:'var(--grade-s)',A:'var(--grade-a)',B:'var(--grade-b)',C:'var(--grade-c)',D:'var(--grade-d)'}[g]; }
+function actionClass(g) { return {S:'buy',A:'buy',B:'watch',C:'hold',D:'avoid'}[g]||'hold'; }
+</script>
+</body>
+</html>
