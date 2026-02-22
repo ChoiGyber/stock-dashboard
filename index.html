@@ -7,9 +7,98 @@
 <title>📡 Signal Dashboard</title>
 <script src="https://cdn.tailwindcss.com">
 // ─── Python 주입 데이터 ───
-const GENERATED_AT = "2026-02-22 02:14:01";
-const REAL_SIGNALS = [];
+const GENERATED_AT = "2026-02-22 16:50:14";
+const REAL_SIGNALS = [
+  {
+    "code": "437730",
+    "name": "삼현",
+    "total_score": 7,
+    "max_score": 15,
+    "score_pct": 46.7,
+    "breakdown": {
+      "뉴스": 0,
+      "기술적": 2,
+      "수급": 2,
+      "거래량": 2,
+      "펀더멘털": 1,
+      "AI판단": 0
+    },
+    "detail": {
+      "뉴스_raw": 0,
+      "기술적": {
+        "RSI적정": 1,
+        "MACD골든": 0,
+        "볼린저하단": 1
+      },
+      "수급": {
+        "외국인순매수": 1,
+        "기관순매수": 1,
+        "프로그램순매수": 0
+      },
+      "거래량": {
+        "2배이상": 1,
+        "3배이상": 1
+      },
+      "펀더멘털": {
+        "PER15이하": 1,
+        "매출성장중": 0
+      },
+      "AI판단": {
+        "AI4점이상": 0,
+        "AI5점": 0
+      }
+    },
+    "grade": "B",
+    "grade_label": "👀 관심",
+    "action": "감시 리스트 추가",
+    "color": "yellow",
+    "weights_used": {
+      "뉴스": 1.0,
+      "기술적": 1.0,
+      "수급": 1.0,
+      "거래량": 1.0,
+      "펀더멘털": 1.0,
+      "AI판단": 1.0
+    },
+    "scored_at": "2026-02-22T16:50:03.284764"
+  }
+];
 const REAL_WEIGHTS = {};
+const REAL_PATTERNS = [
+  {
+    "code": "015760",
+    "name": "015760",
+    "pattern_ratio": 0.38,
+    "rise_fall_count": 4,
+    "v_shape_count": 18,
+    "total_days": 58,
+    "dominant_pattern": "v_shape",
+    "avg_morning_rise": 1.82,
+    "avg_afternoon_change": 2.12
+  },
+  {
+    "code": "097230",
+    "name": "097230",
+    "pattern_ratio": 0.29,
+    "rise_fall_count": 1,
+    "v_shape_count": 16,
+    "total_days": 58,
+    "dominant_pattern": "v_shape",
+    "avg_morning_rise": 2.79,
+    "avg_afternoon_change": 2.6
+  },
+  {
+    "code": "006220",
+    "name": "006220",
+    "pattern_ratio": 0.22,
+    "rise_fall_count": 2,
+    "v_shape_count": 11,
+    "total_days": 58,
+    "dominant_pattern": "v_shape",
+    "avg_morning_rise": 1.87,
+    "avg_afternoon_change": 2.35
+  }
+];
 
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -539,6 +628,178 @@ body::after {
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-value { font-size: 28px; }
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   초보자 가이드 컴포넌트
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.beginner-banner {
+  background: linear-gradient(135deg, rgba(47,129,247,0.12), rgba(48,209,88,0.08));
+  border: 1px solid rgba(47,129,247,0.2);
+  border-radius: 14px;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: slide-in 0.4s ease-out;
+}
+.beginner-banner .banner-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.beginner-banner .banner-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+.beginner-banner .banner-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.beginner-guide {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.beginner-guide summary {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.beginner-guide summary::-webkit-details-marker { display: none; }
+.beginner-guide summary::after {
+  content: '▼';
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+.beginner-guide[open] summary::after {
+  transform: rotate(180deg);
+}
+.guide-content {
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 768px) {
+  .guide-content { grid-template-columns: 1fr; }
+}
+.guide-section h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.guide-section ul {
+  list-style: none;
+  padding: 0;
+}
+.guide-section li {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  padding: 5px 0;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.guide-section li .guide-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Geist Mono', monospace;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.guide-section li .guide-badge.gb-s { background: rgba(255,59,48,0.15); color: #ff3b30; }
+.guide-section li .guide-badge.gb-a { background: rgba(48,209,88,0.12); color: #30d158; }
+.guide-section li .guide-badge.gb-b { background: rgba(255,214,10,0.10); color: #ffd60a; }
+.guide-section li .guide-badge.gb-c { background: rgba(99,99,102,0.15); color: #636366; }
+.guide-section li .guide-badge.gb-d { background: rgba(58,58,60,0.2); color: #3a3a3c; }
+
+.stock-reason {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   장중 패턴 분석 패널
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.pattern-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.pattern-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent), #30d158);
+  transition: width 0.8s ease-out;
+}
+.pattern-ratio-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pattern-ratio-num {
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 38px;
+  color: var(--text-primary);
+}
+.pattern-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pattern-badge.rise-fall {
+  background: rgba(255,59,48,0.12);
+  color: var(--grade-s);
+  border: 1px solid rgba(255,59,48,0.25);
+}
+.pattern-badge.v-shape {
+  background: rgba(48,209,88,0.12);
+  color: var(--grade-a);
+  border: 1px solid rgba(48,209,88,0.25);
+}
+.pattern-count {
+  font-family: 'Geist Mono', monospace;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+.pattern-morning {
+  font-family: 'Geist Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.pattern-morning.positive { color: var(--grade-s); }
+.pattern-morning.negative { color: var(--accent); }
 </style>
 </head>
 
@@ -602,6 +863,11 @@ body::after {
     <!-- 컨텐츠 -->
     <div class="content">
 
+      <!-- 초보자 가이드 배너 -->
+      <div id="beginner-summary" class="beginner-banner">
+        <!-- JS에서 동적 생성 -->
+      </div>
+
       <!-- 통계 카드 4개 -->
       <div class="stat-grid" id="stat-cards">
         <div class="stat-card s">
@@ -610,7 +876,7 @@ body::after {
             <span class="stat-label">🔥 S등급 강력매수</span>
           </div>
           <div class="stat-value s ticker" id="cnt-s">0</div>
-          <div class="stat-trend">즉시 진입 검토 대상</div>
+          <div class="stat-trend">지금 사도 좋은 종목</div>
         </div>
         <div class="stat-card a">
           <div class="border-beam" style="animation-delay: -1s;"></div>
@@ -618,7 +884,7 @@ body::after {
             <span class="stat-label">✅ A등급 매수신호</span>
           </div>
           <div class="stat-value a ticker" id="cnt-a">0</div>
-          <div class="stat-trend">진입 신호 발생</div>
+          <div class="stat-trend">사볼 만한 종목</div>
         </div>
         <div class="stat-card b">
           <div class="border-beam" style="animation-delay: -2s;"></div>
@@ -626,14 +892,14 @@ body::after {
             <span class="stat-label">👀 B등급 관심종목</span>
           </div>
           <div class="stat-value b ticker" id="cnt-b">0</div>
-          <div class="stat-trend">감시리스트 추가</div>
+          <div class="stat-trend">지켜볼 종목</div>
         </div>
         <div class="stat-card">
           <div class="stat-header">
             <span class="stat-label">전체 스크리닝</span>
           </div>
           <div class="stat-value total ticker" id="cnt-total">0</div>
-          <div class="stat-trend">6팩터 15점 분석 완료</div>
+          <div class="stat-trend">AI가 분석한 전체 종목</div>
         </div>
       </div>
 
@@ -674,6 +940,94 @@ body::after {
           </tbody>
         </table>
       </div>
+
+      <!-- 장중 패턴 분석 TOP 10 -->
+      <div class="panel" id="pattern-panel">
+        <div class="panel-header">
+          <span class="panel-title">
+            <span style="color:var(--accent)">▲</span>
+            장중 패턴 분석 TOP 10
+          </span>
+          <div class="panel-actions">
+            <div class="tab-group">
+              <button class="tab active" onclick="filterPattern('all', this)">전체</button>
+              <button class="tab" onclick="filterPattern('rise_fall', this)">상승→하락</button>
+              <button class="tab" onclick="filterPattern('v_shape', this)">V자 반등</button>
+            </div>
+          </div>
+        </div>
+        <table class="signal-table">
+          <thead>
+            <tr>
+              <th>순위</th>
+              <th>종목</th>
+              <th>패턴 비율</th>
+              <th>상승→하락</th>
+              <th>V자반등</th>
+              <th>평균 장초반</th>
+              <th>주요 패턴</th>
+            </tr>
+          </thead>
+          <tbody id="pattern-tbody">
+            <tr><td colspan="7">
+              <div class="empty-state">
+                <div class="empty-icon">📊</div>
+                <div class="empty-text">아직 패턴 분석 데이터가 없어요</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:4px">장 시간에 분석이 완료되면 여기에 표시돼요</div>
+              </div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 초보자 가이드 -->
+      <details class="beginner-guide" id="beginner-guide-panel">
+        <summary>
+          <span class="panel-title">📖 이 대시보드 보는 법 (초보자 가이드)</span>
+        </summary>
+        <div class="guide-content">
+          <div class="guide-section">
+            <h4>📊 등급이 뭔가요?</h4>
+            <ul>
+              <li><span class="guide-badge gb-s">S</span> <span><strong>강력 매수</strong> — AI가 가장 자신있게 추천하는 종목</span></li>
+              <li><span class="guide-badge gb-a">A</span> <span><strong>매수</strong> — 좋은 신호가 나온 종목</span></li>
+              <li><span class="guide-badge gb-b">B</span> <span><strong>관심</strong> — 지켜볼 만한 종목</span></li>
+              <li><span class="guide-badge gb-c">C</span> <span><strong>관망</strong> — 아직 매수 타이밍이 아님</span></li>
+              <li><span class="guide-badge gb-d">D</span> <span><strong>비추</strong> — 지금은 사지 마세요</span></li>
+            </ul>
+          </div>
+          <div class="guide-section">
+            <h4>🔬 6가지 분석 항목</h4>
+            <ul>
+              <li><span style="color:#2f81f7;font-weight:600;min-width:52px">뉴스</span> 호재 뉴스가 있는지</li>
+              <li><span style="color:#a78bfa;font-weight:600;min-width:52px">기술적</span> 차트(가격 흐름) 분석</li>
+              <li><span style="color:#30d158;font-weight:600;min-width:52px">수급</span> 큰손(기관/외국인)이 사는지</li>
+              <li><span style="color:#ffd60a;font-weight:600;min-width:52px">거래량</span> 거래가 활발한지</li>
+              <li><span style="color:#fb923c;font-weight:600;min-width:52px">펀더멘털</span> 기업의 실제 가치</li>
+              <li><span style="color:#38bdf8;font-weight:600;min-width:52px">AI판단</span> AI의 종합 평가</li>
+            </ul>
+          </div>
+          <div class="guide-section">
+            <h4>📏 점수는 어떻게 보나요?</h4>
+            <ul>
+              <li><span>15점 만점이에요. <strong>점수가 높을수록 좋아요!</strong></span></li>
+              <li><span>12점 이상 → S등급 (강력 추천)</span></li>
+              <li><span>9~11점 → A등급 (추천)</span></li>
+              <li><span>6~8점 → B등급 (관심)</span></li>
+              <li><span>6점 미만 → C/D등급 (관망/비추)</span></li>
+            </ul>
+          </div>
+          <div class="guide-section">
+            <h4>💡 어떻게 활용하나요?</h4>
+            <ul>
+              <li><span>S/A등급 종목을 중심으로 살펴보세요</span></li>
+              <li><span>종목 행을 클릭하면 상세 분석을 볼 수 있어요</span></li>
+              <li><span>장 시간(평일 09:00~15:30)에 실시간 업데이트돼요</span></li>
+              <li><span>5분마다 자동 새로고침되니 켜두기만 하면 돼요</span></li>
+            </ul>
+          </div>
+        </div>
+      </details>
 
       <!-- 하단: 피드 + 가중치 -->
       <div class="bottom-grid">
@@ -758,8 +1112,24 @@ const FACTOR_COLORS = {
   거래량:"#ffd60a", 펀더멘털:"#fb923c", AI판단:"#38bdf8"
 };
 
+/* ─── 샘플 패턴 데이터 (Python 주입 없을 때 폴백) ─── */
+const SAMPLE_PATTERNS = [
+  {code:"000660",name:"SK하이닉스",pattern_ratio:0.45,rise_fall_count:25,v_shape_count:15,total_days:90,dominant_pattern:"rise_fall",avg_morning_rise:1.2,avg_afternoon_change:-0.8},
+  {code:"005930",name:"삼성전자",pattern_ratio:0.38,rise_fall_count:20,v_shape_count:14,total_days:90,dominant_pattern:"rise_fall",avg_morning_rise:0.9,avg_afternoon_change:-0.5},
+  {code:"373220",name:"LG에너지솔루션",pattern_ratio:0.35,rise_fall_count:12,v_shape_count:19,total_days:90,dominant_pattern:"v_shape",avg_morning_rise:1.5,avg_afternoon_change:0.7},
+  {code:"005380",name:"현대차",pattern_ratio:0.32,rise_fall_count:18,v_shape_count:11,total_days:90,dominant_pattern:"rise_fall",avg_morning_rise:0.8,avg_afternoon_change:-0.6},
+  {code:"035420",name:"NAVER",pattern_ratio:0.30,rise_fall_count:10,v_shape_count:17,total_days:90,dominant_pattern:"v_shape",avg_morning_rise:1.1,avg_afternoon_change:0.5},
+  {code:"051910",name:"LG화학",pattern_ratio:0.28,rise_fall_count:15,v_shape_count:10,total_days:90,dominant_pattern:"rise_fall",avg_morning_rise:1.0,avg_afternoon_change:-0.7},
+  {code:"006400",name:"삼성SDI",pattern_ratio:0.26,rise_fall_count:8,v_shape_count:15,total_days:90,dominant_pattern:"v_shape",avg_morning_rise:1.3,avg_afternoon_change:0.4},
+  {code:"035720",name:"카카오",pattern_ratio:0.24,rise_fall_count:14,v_shape_count:8,total_days:90,dominant_pattern:"rise_fall",avg_morning_rise:0.7,avg_afternoon_change:-0.4},
+  {code:"068270",name:"셀트리온",pattern_ratio:0.22,rise_fall_count:7,v_shape_count:13,total_days:90,dominant_pattern:"v_shape",avg_morning_rise:0.9,avg_afternoon_change:0.3},
+  {code:"055550",name:"신한지주",pattern_ratio:0.20,rise_fall_count:12,v_shape_count:6,total_days:90,dominant_pattern:"rise_fall",avg_morning_rise:0.6,avg_afternoon_change:-0.3},
+];
+
 let currentFilter = 'all';
+let currentPatternFilter = 'all';
 let signals = [];
+let patterns = [];
 
 /* ─── 초기화 ─── */
 window.addEventListener('DOMContentLoaded', () => {
@@ -773,6 +1143,9 @@ function animateIn() {
   gsap.from('.stat-card', {
     y: 24, opacity: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out'
   });
+  gsap.from('.beginner-banner', {
+    y: 16, opacity: 0, duration: 0.4, ease: 'power2.out'
+  });
   gsap.from('.panel', {
     y: 20, opacity: 0, duration: 0.5, delay: 0.3, stagger: 0.1, ease: 'power2.out'
   });
@@ -784,9 +1157,12 @@ function loadData() {
             ? REAL_SIGNALS : SAMPLE_SIGNALS;
   const w = (typeof REAL_WEIGHTS !== 'undefined' && Object.keys(REAL_WEIGHTS).length)
             ? REAL_WEIGHTS : SAMPLE_WEIGHTS;
+  patterns = (typeof REAL_PATTERNS !== 'undefined' && REAL_PATTERNS.length)
+             ? REAL_PATTERNS : SAMPLE_PATTERNS;
   renderAll(signals);
   renderWeights(w);
   renderMiniWeights(w);
+  renderPatternTable(patterns);
 }
 
 function refreshAll() {
@@ -800,8 +1176,55 @@ function refreshAll() {
   }, 800);
 }
 
+/* ─── 초보자 액션 텍스트 매핑 ─── */
+const BEGINNER_ACTION = {
+  '즉시 진입 검토': '매수 추천',
+  '진입 신호':     '매수 고려',
+  '감시 리스트':   '관심 등록',
+  '관망':          '기다려 보세요',
+  '회피':          '추천하지 않음',
+};
+
+/* ─── 초보자 요약 배너 ─── */
+function renderBeginnerSummary(data) {
+  const el = document.getElementById('beginner-summary');
+  if (!el) return;
+
+  const sCount = data.filter(d => d.grade === 'S').length;
+  const aCount = data.filter(d => d.grade === 'A').length;
+  const bCount = data.filter(d => d.grade === 'B').length;
+
+  let icon, text, sub;
+  if (sCount > 0) {
+    icon = '🔥';
+    text = `오늘 강력 매수 추천 종목이 <strong>${sCount}개</strong> 있어요! 아래에서 확인하세요`;
+    sub = 'S등급은 AI가 가장 자신있게 추천하는 종목이에요';
+  } else if (aCount > 0) {
+    icon = '✅';
+    text = `매수 신호가 나온 종목이 <strong>${aCount}개</strong> 있어요`;
+    sub = 'A등급 종목을 살펴보세요';
+  } else if (bCount > 0) {
+    icon = '👀';
+    text = `관심 종목이 <strong>${bCount}개</strong> 있어요. 지켜보세요`;
+    sub = '아직 강한 신호는 아니지만 주목할 만한 종목이에요';
+  } else {
+    icon = '💤';
+    text = '아직 추천 종목이 없어요';
+    sub = '장 시간(평일 9:00~15:30)에 다시 확인하세요';
+  }
+
+  el.innerHTML = `
+    <span class="banner-icon">${icon}</span>
+    <div>
+      <div class="banner-text">${text}</div>
+      <div class="banner-sub">${sub}</div>
+    </div>
+  `;
+}
+
 /* ─── 전체 렌더 ─── */
 function renderAll(data) {
+  renderBeginnerSummary(data);
   renderStatCards(data);
   renderTable(data);
   renderFeed(data);
@@ -850,17 +1273,21 @@ function renderTable(data) {
   if (!filtered.length) {
     tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
       <div class="empty-icon">📡</div>
-      <div class="empty-text">해당 등급 시그널 없음</div>
+      <div class="empty-text">아직 추천 종목이 없어요</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">장 시간(평일 9:00~15:30)에 AI가 분석을 시작해요</div>
     </div></td></tr>`;
     return;
   }
 
-  tbody.innerHTML = filtered.map((sig, idx) => `
+  tbody.innerHTML = filtered.map((sig, idx) => {
+    const friendlyAction = BEGINNER_ACTION[sig.action] || sig.action;
+    return `
     <tr style="animation: slide-in 0.3s ease-out ${idx*0.05}s both;" onclick="showDetail('${sig.code}')">
       <td><span class="grade-badge ${sig.grade}">${gradeEmoji(sig.grade)} ${sig.grade}</span></td>
       <td>
         <div class="stock-name">${sig.name}</div>
         <div class="stock-code">${sig.code}</div>
+        ${sig.reason ? `<div class="stock-reason">${sig.reason}</div>` : ''}
       </td>
       <td>
         <div class="score-wrap">
@@ -881,10 +1308,10 @@ function renderTable(data) {
           ).join('')}
         </div>
       </td>
-      <td><span class="action-badge ${actionClass(sig.grade)}">${sig.action}</span></td>
+      <td><span class="action-badge ${actionClass(sig.grade)}">${friendlyAction}</span></td>
       <td><span style="font-size:11.5px;color:var(--text-muted)">${sig.provider || '-'}</span></td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 /* ─── 피드 ─── */
@@ -939,6 +1366,63 @@ function renderMiniWeights(weights) {
       </div>
       <div style="font-size:10px;font-family:'Geist Mono',monospace;color:var(--text-muted);width:28px;text-align:right">${val.toFixed(2)}</div>
     </div>`;
+  }).join('');
+}
+
+/* ─── 패턴 분석 테이블 ─── */
+function filterPattern(type, btn) {
+  currentPatternFilter = type;
+  btn.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderPatternTable(patterns);
+}
+
+function renderPatternTable(data) {
+  let filtered = data;
+  if (currentPatternFilter === 'rise_fall') {
+    filtered = data.filter(d => d.dominant_pattern === 'rise_fall');
+  } else if (currentPatternFilter === 'v_shape') {
+    filtered = data.filter(d => d.dominant_pattern === 'v_shape');
+  }
+
+  const tbody = document.getElementById('pattern-tbody');
+  if (!filtered || !filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+      <div class="empty-icon">📊</div>
+      <div class="empty-text">아직 패턴 분석 데이터가 없어요</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">장 시간에 분석이 완료되면 여기에 표시돼요</div>
+    </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((p, idx) => {
+    const pctText = Math.round(p.pattern_ratio * 100) + '%';
+    const pctWidth = Math.min(Math.round(p.pattern_ratio * 100 / 0.6), 100);
+    const patternLabel = p.dominant_pattern === 'rise_fall' ? '상승→하락' : 'V자반등';
+    const patternClass = p.dominant_pattern === 'rise_fall' ? 'rise-fall' : 'v-shape';
+    const morningClass = p.avg_morning_rise >= 0 ? 'positive' : 'negative';
+    const morningSign = p.avg_morning_rise >= 0 ? '+' : '';
+
+    return `
+    <tr style="animation: slide-in 0.3s ease-out ${idx * 0.05}s both;">
+      <td style="text-align:center;font-family:'Geist Mono',monospace;font-weight:700;color:var(--text-muted)">${idx + 1}</td>
+      <td>
+        <div class="stock-name">${p.name}</div>
+        <div class="stock-code">${p.code}</div>
+      </td>
+      <td>
+        <div class="pattern-ratio-wrap">
+          <span class="pattern-ratio-num">${pctText}</span>
+          <div class="pattern-bar-bg" style="flex:1;min-width:60px">
+            <div class="pattern-bar-fill" style="width:${pctWidth}%"></div>
+          </div>
+        </div>
+      </td>
+      <td><span class="pattern-count">${p.rise_fall_count}회<span style="color:var(--text-muted)">/${p.total_days}일</span></span></td>
+      <td><span class="pattern-count">${p.v_shape_count}회<span style="color:var(--text-muted)">/${p.total_days}일</span></span></td>
+      <td><span class="pattern-morning ${morningClass}">${morningSign}${p.avg_morning_rise.toFixed(1)}%</span></td>
+      <td><span class="pattern-badge ${patternClass}">${patternLabel}</span></td>
+    </tr>`;
   }).join('');
 }
 
