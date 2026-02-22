@@ -7,7 +7,7 @@
 <title>📡 Signal Dashboard</title>
 <script src="https://cdn.tailwindcss.com">
 // ─── Python 주입 데이터 ───
-const GENERATED_AT = "2026-02-22 20:55:10";
+const GENERATED_AT = "2026-02-22 22:38:33";
 const REAL_SIGNALS = [
   {
     "code": "437730",
@@ -60,7 +60,7 @@ const REAL_SIGNALS = [
       "펀더멘털": 1.0,
       "AI판단": 1.0
     },
-    "scored_at": "2026-02-22T20:55:06.541338"
+    "scored_at": "2026-02-22T22:38:23.679618"
   }
 ];
 const REAL_WEIGHTS = {};
@@ -99,6 +99,162 @@ const REAL_PATTERNS = [
     "avg_afternoon_change": 2.35
   }
 ];
+const REAL_CONFIG = {
+  "trading": {
+    "SCALP_BUDGET": {
+      "value": 1000000,
+      "type": "int",
+      "label": "스캘핑 예산",
+      "desc": "단타 매매에 사용할 총 예산",
+      "min": 100000,
+      "max": 10000000,
+      "unit": "원"
+    },
+    "LONGTERM_BUDGET": {
+      "value": 5000000,
+      "type": "int",
+      "label": "장기투자 예산",
+      "desc": "장기 포트폴리오 리밸런싱 예산",
+      "min": 1000000,
+      "max": 50000000,
+      "unit": "원"
+    },
+    "DAILY_LOSS_LIMIT": {
+      "value": 50000,
+      "type": "int",
+      "label": "일일 손실 한도",
+      "desc": "하루 최대 허용 손실 금액",
+      "min": 10000,
+      "max": 500000,
+      "unit": "원"
+    },
+    "MAX_POSITIONS": {
+      "value": 3,
+      "type": "int",
+      "label": "최대 보유 종목 수",
+      "desc": "동시에 보유할 수 있는 최대 종목 수",
+      "min": 1,
+      "max": 10,
+      "unit": "개"
+    },
+    "SIGNAL_SCORE_THRESHOLD": {
+      "value": 7,
+      "type": "int",
+      "label": "시그널 점수 기준",
+      "desc": "이 점수 이상인 시그널만 포함 (15점 만점)",
+      "min": 1,
+      "max": 15,
+      "unit": "점"
+    },
+    "SIGNAL_MAX_COUNT": {
+      "value": 20,
+      "type": "int",
+      "label": "최대 시그널 수",
+      "desc": "한 번 실행 시 생성할 최대 시그널 개수",
+      "min": 5,
+      "max": 50,
+      "unit": "개"
+    }
+  },
+  "daytrading": {
+    "STOP_LOSS_PCT": {
+      "value": -3.0,
+      "type": "float",
+      "label": "손절 기준",
+      "desc": "매입가 대비 이 비율 이하로 떨어지면 손절",
+      "min": -10.0,
+      "max": -0.5,
+      "unit": "%"
+    },
+    "TAKE_PROFIT_PCT": {
+      "value": 5.0,
+      "type": "float",
+      "label": "익절 기준",
+      "desc": "매입가 대비 이 비율 이상 오르면 익절",
+      "min": 1.0,
+      "max": 20.0,
+      "unit": "%"
+    },
+    "TRAIL_ACTIVATION_PCT": {
+      "value": 3.0,
+      "type": "float",
+      "label": "트레일링 스탑 활성화",
+      "desc": "이 수익률 도달 시 트레일링 스탑 시작",
+      "min": 1.0,
+      "max": 10.0,
+      "unit": "%"
+    },
+    "TRAIL_STOP_FACTOR": {
+      "value": 97.0,
+      "type": "float",
+      "label": "트레일링 스탑 비율",
+      "desc": "고점 대비 이 비율 이하로 떨어지면 매도",
+      "min": 90.0,
+      "max": 99.0,
+      "unit": "%"
+    },
+    "MORNING_MONITOR_INTERVAL": {
+      "value": 30,
+      "type": "int",
+      "label": "모니터링 간격",
+      "desc": "포지션 모니터링 주기",
+      "min": 10,
+      "max": 120,
+      "unit": "초"
+    }
+  },
+  "risk": {
+    "MAX_CONCENTRATION": {
+      "value": 40.0,
+      "type": "float",
+      "label": "최대 집중도",
+      "desc": "단일 종목이 전체 포트폴리오에서 차지할 수 있는 최대 비율",
+      "min": 10.0,
+      "max": 80.0,
+      "unit": "%"
+    },
+    "MARKET_DROP_THRESHOLD": {
+      "value": 3.0,
+      "type": "float",
+      "label": "시장 급락 기준",
+      "desc": "KOSPI가 이 비율 이상 하락 시 매수 차단",
+      "min": 1.0,
+      "max": 10.0,
+      "unit": "%"
+    }
+  },
+  "screener": {
+    "SCREENER_VOL_THRESHOLD": {
+      "value": 3.0,
+      "type": "float",
+      "label": "거래량 급증 배수",
+      "desc": "평균 거래량 대비 이 배수 이상이면 급증으로 판단",
+      "min": 1.5,
+      "max": 10.0,
+      "unit": "배"
+    },
+    "SCREENER_MAX_CANDIDATES": {
+      "value": 30,
+      "type": "int",
+      "label": "최대 후보 종목 수",
+      "desc": "스크리너 최종 결과 최대 종목 수",
+      "min": 5,
+      "max": 100,
+      "unit": "개"
+    }
+  },
+  "notification": {
+    "TELEGRAM_MIN_GRADE": {
+      "value": "A",
+      "type": "str",
+      "label": "텔레그램 알림 최소 등급",
+      "desc": "이 등급 이상의 시그널만 텔레그램 알림 발송",
+      "min": null,
+      "max": null,
+      "unit": "등급"
+    }
+  }
+};
 
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -800,6 +956,151 @@ body::after {
 }
 .pattern-morning.positive { color: var(--grade-s); }
 .pattern-morning.negative { color: var(--accent); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   설정 모달 (⚙ Settings)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.settings-btn {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Geist', sans-serif;
+  display: flex; align-items: center; gap: 6px;
+}
+.settings-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  justify-content: center; align-items: flex-start;
+  padding-top: 60px;
+  overflow-y: auto;
+}
+.modal-overlay.open { display: flex; }
+
+.modal-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 16px;
+  width: 580px;
+  max-width: 95vw;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  margin-bottom: 40px;
+}
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky; top: 0;
+  background: var(--bg-surface);
+  z-index: 1;
+  border-radius: 16px 16px 0 0;
+}
+.modal-header h2 {
+  font-size: 16px; font-weight: 600; color: var(--text-primary);
+  display: flex; align-items: center; gap: 8px;
+}
+.modal-close {
+  background: none; border: none; color: var(--text-muted);
+  font-size: 20px; cursor: pointer; padding: 4px 8px;
+  border-radius: 6px; transition: all 0.15s;
+}
+.modal-close:hover { color: var(--text-primary); background: var(--bg-hover); }
+
+.modal-body { padding: 16px 24px 24px; }
+
+.cfg-category {
+  margin-bottom: 20px;
+}
+.cfg-category-title {
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  color: var(--accent); letter-spacing: 1px;
+  margin-bottom: 10px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.cfg-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; gap: 12px;
+}
+.cfg-label-wrap { flex: 1; min-width: 0; }
+.cfg-label {
+  font-size: 13px; font-weight: 500; color: var(--text-primary);
+}
+.cfg-desc {
+  font-size: 11px; color: var(--text-muted); margin-top: 2px;
+}
+.cfg-input-wrap {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.cfg-input {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-family: 'Geist Mono', monospace;
+  width: 100px; text-align: right;
+  transition: border-color 0.15s, background 0.15s;
+}
+.cfg-input:focus {
+  outline: none; border-color: var(--accent);
+}
+.cfg-input.changed {
+  background: rgba(255,214,10,0.08);
+  border-color: var(--grade-b);
+}
+.cfg-unit {
+  font-size: 11px; color: var(--text-muted);
+  min-width: 24px;
+}
+
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-subtle);
+  position: sticky; bottom: 0;
+  background: var(--bg-surface);
+  border-radius: 0 0 16px 16px;
+}
+.btn-download {
+  background: var(--accent);
+  color: #fff; border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+  font-family: 'Geist', sans-serif;
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-download:hover { filter: brightness(1.15); }
+.btn-reset {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px; cursor: pointer;
+  font-family: 'Geist', sans-serif;
+  transition: all 0.15s;
+}
+.btn-reset:hover { background: var(--bg-hover); color: var(--text-primary); }
 </style>
 </head>
 
@@ -856,9 +1157,27 @@ body::after {
       </div>
       <div class="topbar-right">
         <span class="clock" id="clock">--:--:--</span>
+        <button class="settings-btn" onclick="openSettings()">⚙ 설정</button>
         <button class="refresh-btn" onclick="refreshAll()">↻ 새로고침</button>
       </div>
     </header>
+
+    <!-- 설정 모달 -->
+    <div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeSettings()">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h2>⚙ 매매 설정</h2>
+          <button class="modal-close" onclick="closeSettings()">✕</button>
+        </div>
+        <div class="modal-body" id="settings-body">
+          <!-- JS에서 동적 생성 -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn-reset" onclick="resetSettings()">초기화</button>
+          <button class="btn-download" onclick="downloadSettings()">⬇ 설정 다운로드</button>
+        </div>
+      </div>
+    </div>
 
     <!-- 컨텐츠 -->
     <div class="content">
@@ -1474,6 +1793,127 @@ function showDetail(code) {
 function gradeEmoji(g) { return {S:'🔥',A:'✅',B:'👀',C:'⏸️',D:'❌'}[g]||''; }
 function gradeColor(g)  { return {S:'var(--grade-s)',A:'var(--grade-a)',B:'var(--grade-b)',C:'var(--grade-c)',D:'var(--grade-d)'}[g]; }
 function actionClass(g) { return {S:'buy',A:'buy',B:'watch',C:'hold',D:'avoid'}[g]||'hold'; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   설정 모달 로직
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+const CATEGORY_LABELS = {
+  trading:      '매매 기본',
+  daytrading:   '단타 매매',
+  risk:         '리스크 관리',
+  screener:     '종목 발굴',
+  notification: '알림',
+};
+
+let _configOriginal = {};  // 원본 값 저장
+
+function _getConfig() {
+  return (typeof REAL_CONFIG !== 'undefined' && REAL_CONFIG && Object.keys(REAL_CONFIG).length)
+    ? JSON.parse(JSON.stringify(REAL_CONFIG))
+    : {};
+}
+
+function openSettings() {
+  const cfg = _getConfig();
+  _configOriginal = JSON.parse(JSON.stringify(cfg));
+  const body = document.getElementById('settings-body');
+  body.innerHTML = '';
+
+  if (!Object.keys(cfg).length) {
+    body.innerHTML = '<p style="color:var(--text-muted);padding:20px">설정 데이터가 없습니다. Python에서 시스템을 실행하면 설정이 로드됩니다.</p>';
+    document.getElementById('settings-modal').classList.add('open');
+    return;
+  }
+
+  for (const [cat, params] of Object.entries(cfg)) {
+    const section = document.createElement('div');
+    section.className = 'cfg-category';
+    section.innerHTML = `<div class="cfg-category-title">${CATEGORY_LABELS[cat] || cat}</div>`;
+
+    for (const [key, meta] of Object.entries(params)) {
+      if (typeof meta !== 'object' || !('value' in meta)) continue;
+      const row = document.createElement('div');
+      row.className = 'cfg-row';
+
+      const inputType = meta.type === 'str' ? 'text' : 'number';
+      const step = meta.type === 'float' ? '0.1' : '1';
+      const minAttr = meta.min !== null && meta.min !== undefined ? `min="${meta.min}"` : '';
+      const maxAttr = meta.max !== null && meta.max !== undefined ? `max="${meta.max}"` : '';
+
+      row.innerHTML = `
+        <div class="cfg-label-wrap">
+          <div class="cfg-label">${meta.label || key}</div>
+          <div class="cfg-desc">${meta.desc || ''}</div>
+        </div>
+        <div class="cfg-input-wrap">
+          <input class="cfg-input" type="${inputType}" step="${step}"
+                 ${minAttr} ${maxAttr}
+                 value="${meta.value}"
+                 data-cat="${cat}" data-key="${key}" data-orig="${meta.value}"
+                 oninput="onCfgChange(this)">
+          <span class="cfg-unit">${meta.unit || ''}</span>
+        </div>`;
+      section.appendChild(row);
+    }
+    body.appendChild(section);
+  }
+
+  document.getElementById('settings-modal').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+
+function onCfgChange(el) {
+  const orig = el.dataset.orig;
+  const cur = el.value;
+  if (String(cur) !== String(orig)) {
+    el.classList.add('changed');
+  } else {
+    el.classList.remove('changed');
+  }
+}
+
+function resetSettings() {
+  document.querySelectorAll('.cfg-input').forEach(el => {
+    el.value = el.dataset.orig;
+    el.classList.remove('changed');
+  });
+}
+
+function _buildConfigFromForm() {
+  const cfg = JSON.parse(JSON.stringify(_configOriginal));
+  document.querySelectorAll('.cfg-input').forEach(el => {
+    const cat = el.dataset.cat;
+    const key = el.dataset.key;
+    if (!cfg[cat] || !cfg[cat][key]) return;
+    const meta = cfg[cat][key];
+    if (meta.type === 'int') meta.value = parseInt(el.value, 10);
+    else if (meta.type === 'float') meta.value = parseFloat(el.value);
+    else meta.value = el.value;
+  });
+  return cfg;
+}
+
+function downloadSettings() {
+  const cfg = _buildConfigFromForm();
+  const blob = new Blob(
+    [JSON.stringify(cfg, null, 2)],
+    { type: 'application/json' }
+  );
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'trading_config.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ESC 키로 닫기
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeSettings();
+});
 </script>
 </body>
 </html>
